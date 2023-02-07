@@ -142,10 +142,10 @@ ifeq ($(ARCH_DETECTED), 64BITS_32)
     $(error Do not use the BITS=32 option with FreeBSD, use -m32 and -m elf_i386)
   endif
   ifneq ($(OS), OSX)
+    CFLAGS += -m32
     ifeq ($(OS), MINGW)
       LDFLAGS += -Wl,-m,i386pe
     else
-      CFLAGS += -m32
       LDFLAGS += -Wl,-m,elf_i386
     endif
   endif
@@ -369,7 +369,6 @@ targets:
 	@echo "    POSTFIX=name  == String added to the name of the the build (default: '')"
 	@echo "  Install Options:"
 	@echo "    PREFIX=path   == install/uninstall prefix (default: /usr/local)"
-	@echo "    SHAREDIR=path == path to install shared data files (default: PREFIX/share/mupen64plus)"
 	@echo "    LIBDIR=path   == library prefix (default: PREFIX/lib)"
 	@echo "    PLUGINDIR=path == path to install plugin libraries (default: LIBDIR/mupen64plus)"
 	@echo "    DESTDIR=path  == path to prepend to all installation paths (only for packagers)"
@@ -382,7 +381,6 @@ all: $(TARGET)
 install: $(TARGET)
 	$(INSTALL) -d "$(DESTDIR)$(PLUGINDIR)"
 	$(INSTALL) -m 0644 $(INSTALL_STRIP_FLAG) $(TARGET) "$(DESTDIR)$(PLUGINDIR)"
-	$(INSTALL) -d "$(DESTDIR)$(SHAREDIR)"
 
 uninstall:
 	$(RM) "$(DESTDIR)$(PLUGINDIR)/$(TARGET)"

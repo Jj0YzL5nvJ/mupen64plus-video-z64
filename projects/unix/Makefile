@@ -93,7 +93,6 @@ ifneq ("$(filter ppc macppc socppc powerpc,$(HOST_CPU))","")
   ARCH_DETECTED := 32BITS
   BIG_ENDIAN := 1
   PIC ?= 1
-  NO_ASM := 1
   $(warning Architecture "$(HOST_CPU)" not officially supported.')
 endif
 ifneq ("$(filter ppc64 powerpc64,$(HOST_CPU))","")
@@ -101,7 +100,6 @@ ifneq ("$(filter ppc64 powerpc64,$(HOST_CPU))","")
   ARCH_DETECTED := 64BITS
   BIG_ENDIAN := 1
   PIC ?= 1
-  NO_ASM := 1
   $(warning Architecture "$(HOST_CPU)" not officially supported.')
 endif
 ifneq ("$(filter arm%,$(HOST_CPU))","")
@@ -109,9 +107,14 @@ ifneq ("$(filter arm%,$(HOST_CPU))","")
     CPU := ARM
     ARCH_DETECTED := 32BITS
     PIC ?= 1
-    NO_ASM := 1
     $(warning Architecture "$(HOST_CPU)" not officially supported.')
   endif
+endif
+ifneq ("$(filter aarch64 arm64,$(HOST_CPU))","")
+  CPU := AARCH64
+  ARCH_DETECTED := 64BITS
+  PIC ?= 1
+  $(warning Architecture "$(HOST_CPU)" not officially supported.')
 endif
 ifeq ("$(CPU)","NONE")
   $(error CPU type "$(HOST_CPU)" not supported.  Please file bug report at 'https://github.com/mupen64plus/mupen64plus-core/issues')
@@ -164,6 +167,10 @@ endif
 ifeq ($(OS), LINUX)
   # only export api symbols
   LDFLAGS += -Wl,-version-script,$(SRCDIR)/video_api_export.ver
+  LDLIBS += -ldl
+endif
+ifeq ($(OS), FREEBSD)
+  LDLIBS += -lc
 endif
 ifeq ($(OS), OSX)
   # Select the proper SDK
@@ -189,12 +196,6 @@ ifeq ($(OS), OSX)
       LDLIBS += -ldl
     endif
   endif
-endif
-ifeq ($(OS), LINUX)
-  LDLIBS += -ldl
-endif
-ifeq ($(OS), FREEBSD)
-  LDLIBS += -lc
 endif
 
 # test for essential build dependencies

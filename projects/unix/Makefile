@@ -310,9 +310,6 @@ endif
 ifeq ($(PREFIX),)
   PREFIX := /usr/local
 endif
-ifeq ($(SHAREDIR),)
-  SHAREDIR := $(PREFIX)/share/mupen64plus
-endif
 ifeq ($(LIBDIR),)
   LIBDIR := $(PREFIX)/lib
 endif

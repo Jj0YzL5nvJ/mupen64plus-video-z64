@@ -32,23 +32,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Get build dependencies and arrange the environment
         run: |
-          git clone --depth 1 -b ci-test5 --single-branch https://github.com/Jj0YzL5nvJ/mupen64plus-core.git ../mupen64plus-core
-          export PATH="$(pwd)/../mupen64plus-core/.github/workflows/scripts:${PATH}"
+          git clone --depth 1 -b ci-rearr --single-branch https://github.com/Jj0YzL5nvJ/mupen64plus-core.git ../mupen64plus-core
+          export C_CLANG_SUFFIX="-15" C_GCC_SUFFIX="-12"
           export BUILD_DEPS="libgl1-mesa-dev libglew-dev libglu1-mesa-dev libsdl1.2-dev libsdl2-dev libx11-dev"
-          ci_install_ubuntu_deps.sh ${{ matrix.arch }} ${{ matrix.cc }}
-          if [[ "${{ matrix.arch }}" == "x86" ]]; then ci_get_libglew_i386.sh; fi
+          ./../mupen64plus-core/.github/workflows/scripts/ci_install_ubuntu_deps.sh ${{ matrix.arch }} ${{ matrix.cc }}
       - name: Build and related stuff, backup binaries
         run: |
+          export C_CLANG_SUFFIX="-15" C_GCC_SUFFIX="-12"
           export PATH="$(pwd)/../mupen64plus-core/.github/workflows/scripts:${PATH}"
-          export BUILD_CONFIG="SDL_CONFIG=\"sdl-config\""
+          export CONFIG_OVERRIDE="SDL_CONFIG=\"sdl-config\""
           ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }}
-          export BUILD_CONFIG="SDL_CONFIG=\"sdl2-config\"" MAKE_PKG=1
-          ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }}
+          export CONFIG_OVERRIDE="SDL_CONFIG=\"sdl2-config\""
+          ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }} makepkg
       - name: Upload artifact
         if: matrix.cc == 'GCC'
         uses: actions/upload-artifact@v4
         with:
-          name: mupen64plus-video-z64-linux-${{ matrix.arch }}-g${{ env.G_REV }}
+          name: ${{ env.PKG_NAME }}
           path: pkg/*.tar.gz
 
   MSYS2:
@@ -86,7 +86,7 @@ jobs:
             mingw-w64-${{ matrix.cross }}-SDL2
       - name: Build and related stuff, backup binaries
         run: |
-          git clone --depth 1 -b ci-test5 --single-branch https://github.com/Jj0YzL5nvJ/mupen64plus-core.git ../mupen64plus-core
+          git clone --depth 1 -b ci-rearr --single-branch https://github.com/Jj0YzL5nvJ/mupen64plus-core.git ../mupen64plus-core
           ./../mupen64plus-core/.github/workflows/scripts/ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }}
       - name: Backup dependencies, etc...
         run: |
@@ -94,7 +94,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mupen64plus-video-z64-msys2-${{ matrix.arch }}-g${{ env.G_REV }}
+          name: ${{ env.PKG_NAME }}
           path: pkg/*
 
   Nightly-build:
@@ -109,7 +109,7 @@ jobs:
           path: binaries
       - name: Get some tools
         run: |
-          git clone --depth 1 -b ci-test5 --single-branch https://github.com/Jj0YzL5nvJ/mupen64plus-core.git ../mupen64plus-core
+          git clone --depth 1 -b ci-rearr --single-branch https://github.com/Jj0YzL5nvJ/mupen64plus-core.git ../mupen64plus-core
           sudo apt-get update
           sudo apt-get -y install hashdeep
       - name: Creating new artifacts and update nightly-build

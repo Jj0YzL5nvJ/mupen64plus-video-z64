@@ -36,9 +36,9 @@ jobs:
         run: |
           export C_CLANG_SUFFIX="-15" C_GCC_SUFFIX="-12"
           export PATH="$(pwd)/../mupen64plus-core/.github/workflows/scripts:${PATH}"
-          export CONFIG_OVERRIDE="SDL_CONFIG=\"sdl-config\""
+          export CONFIG_OVERRIDE="SDL_CONFIG="sdl-config""
           ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }}
-          export CONFIG_OVERRIDE="SDL_CONFIG=\"sdl2-config\""
+          export CONFIG_OVERRIDE="SDL_CONFIG="sdl2-config""
           ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }} makepkg
       - name: Upload artifact
         if: matrix.cc == 'GCC'

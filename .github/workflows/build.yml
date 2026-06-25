@@ -110,7 +110,7 @@ jobs:
 
   Nightly-build:
     runs-on: ubuntu-latest
-    if: github.ref_name == 'ci-test8'
+    if: github.ref_name == 'ci-alter32'
     needs: [Linux, MSYS2]
     steps:
       - uses: actions/checkout@v7

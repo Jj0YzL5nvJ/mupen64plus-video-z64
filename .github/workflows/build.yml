@@ -57,6 +57,10 @@ jobs:
             cross: x86_64
             env: MINGW64
           - cc: GCC
+            arch: x86
+            cross: i686
+            env: MINGW32
+          - cc: GCC
             arch: x64
             cross: ucrt-x86_64
             env: UCRT64
@@ -80,12 +84,20 @@ jobs:
             libtool
             make
             mingw-w64-${{ matrix.cross }}-toolchain
-            mingw-w64-${{ matrix.cross }}-glew
             mingw-w64-${{ matrix.cross }}-ntldd
             mingw-w64-${{ matrix.cross }}-SDL2
-      - name: Build and related stuff, backup binaries
+      - name: Get and install special-case dependencies
         run: |
           git clone --depth 1 https://github.com/mupen64plus/mupen64plus-core.git ../mupen64plus-core
+          if [[ "${{ matrix.cross }}" != "i686" ]]; then
+            pacman --noconfirm --needed -S mingw-w64-${{ matrix.cross }}-glew
+          else
+            curl -L -O https://gist.githubusercontent.com/Jj0YzL5nvJ/f2575c352329ece1ff869cb6a66f2eca/raw/b9e8790817f7610e597b6e310d26db2b0da2f8a5/get_deprecated_msys2_mingw_deps.sh
+            chmod 755 get_deprecated_msys2_mingw_deps.sh
+            ./get_deprecated_msys2_mingw_deps.sh mingw32 mingw-w64-i686-glew-2.2.0-3-any.pkg.tar.zst 681552 a5635e43a6e5e839bed111c65df481badd23bc678d3e83e6b2be281cba378266
+          fi
+      - name: Build and related stuff, backup binaries
+        run: |
           ./../mupen64plus-core/.github/workflows/scripts/ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }}
       - name: Backup dependencies, etc...
         run: |
@@ -98,7 +110,7 @@ jobs:
 
   Nightly-build:
     runs-on: ubuntu-latest
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'ci-test8'
     needs: [Linux, MSYS2]
     steps:
       - uses: actions/checkout@v7
